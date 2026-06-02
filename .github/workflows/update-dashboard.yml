@@ -2,8 +2,8 @@ name: Update Dashboard Data
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # every 5 minutes
-  workflow_dispatch:          # allow manual runs
+    - cron: '0 16,19,3 * * *'  # 10am, 1pm, 9pm CST (UTC-6)
+  workflow_dispatch:             # allow manual runs
 
 jobs:
   update:
