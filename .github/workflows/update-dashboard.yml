@@ -2,7 +2,7 @@ name: Update Dashboard Data
 
 on:
   schedule:
-    - cron: '*/20 * * * *'   # every 20 minutes
+    - cron: '*/5 * * * *'   # every 5 minutes
   workflow_dispatch:          # allow manual runs
 
 jobs:
