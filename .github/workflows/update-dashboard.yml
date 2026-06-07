@@ -2,7 +2,7 @@ name: Update Dashboard Data
 
 on:
   schedule:
-    - cron: '0 16,19,3 * * *'  # 10am, 1pm, 9pm CST (UTC-6)
+    - cron: '0 15,18,2 * * *'  # 10am, 1pm, 9pm CDT (UTC-5)
   workflow_dispatch:             # allow manual runs
 
 jobs:
