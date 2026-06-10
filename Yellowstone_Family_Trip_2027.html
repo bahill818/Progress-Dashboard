@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yellowstone &amp; Grand Teton — Family Adventure 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b1014;
+  --panel:#131b21;
+  --panel2:#18222a;
+  --line:#26323b;
+  --cream:#f4efe2;
+  --mist:#9db0ba;
+  --ember:#e8722c;
+  --spring:#3fa796;
+  --gold:#d9a441;
+  --display:'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --body:'Inter', 'Segoe UI', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--ink);overflow:hidden}
+body{font-family:var(--body);color:var(--cream)}
+
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;opacity:0;transform:translateX(28px);transition:opacity .45s ease,transform .45s ease}
+.slide.active{display:flex;opacity:1;transform:translateX(0)}
+.slide.back{transform:translateX(-28px)}
+
+/* ---------- shared bits ---------- */
+.eyebrow{font-size:clamp(12px,1.05vw,19px);letter-spacing:.32em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.eyebrow .dot{color:var(--ember)}
+h1,h2{font-family:var(--display);font-weight:800;text-transform:uppercase;line-height:.92;letter-spacing:.01em}
+.sub{color:var(--mist);font-size:clamp(15px,1.35vw,25px);line-height:1.5}
+.kicker{color:var(--mist);font-size:clamp(13px,1.1vw,20px)}
+
+.photo{position:relative;overflow:hidden;background:linear-gradient(145deg,#16323a 0%,#0e1d24 55%,#27170e 100%)}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.photo .ph-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--display);font-weight:700;font-size:clamp(20px,2vw,38px);letter-spacing:.08em;text-transform:uppercase;color:rgba(244,239,226,.35);padding:2em}
+.photo .credit{position:absolute;right:.9em;bottom:.7em;font-size:clamp(8px,.62vw,11px);color:rgba(244,239,226,.55);letter-spacing:.06em;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.photo .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,16,20,0) 45%,rgba(11,16,20,.55) 100%);z-index:2}
+
+/* passport-style stamp */
+.stamp{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  width:clamp(96px,9.5vw,170px);height:clamp(96px,9.5vw,170px);border:2.5px dashed rgba(232,114,44,.85);border-radius:50%;
+  transform:rotate(-9deg);color:var(--ember);z-index:6;background:rgba(11,16,20,.35);backdrop-filter:blur(2px)}
+.stamp .s-park{font-family:var(--display);font-weight:700;font-size:clamp(13px,1.15vw,21px);letter-spacing:.12em;text-transform:uppercase;line-height:1.05}
+.stamp .s-date{font-size:clamp(9px,.75vw,13px);letter-spacing:.22em;margin-top:.45em;text-transform:uppercase}
+.stamp .s-no{font-size:clamp(9px,.7vw,12px);letter-spacing:.3em;margin-bottom:.45em}
+
+/* day layout: split */
+.day{flex-direction:row}
+.day .photo{flex:0 0 52%}
+.day.flip{flex-direction:row-reverse}
+.day .content{flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(28px,4vw,80px);position:relative;min-width:0}
+.daytag{display:flex;align-items:baseline;gap:1em;margin-bottom:.5em}
+.daynum{font-family:var(--display);font-weight:800;font-size:clamp(15px,1.3vw,24px);letter-spacing:.18em;color:var(--ember);text-transform:uppercase}
+.daydate{color:var(--mist);font-size:clamp(13px,1.05vw,19px);letter-spacing:.08em}
+.day h2{font-size:clamp(40px,4.6vw,92px);margin-bottom:.18em}
+.day .lede{color:var(--mist);font-size:clamp(14px,1.25vw,23px);line-height:1.5;margin-bottom:clamp(16px,1.8vw,32px);max-width:34em}
+
+.plan{display:flex;flex-direction:column;gap:clamp(8px,1vw,16px)}
+.row{display:flex;gap:1em;align-items:baseline}
+.t{flex:0 0 auto;min-width:clamp(64px,5.6vw,104px);font-family:var(--display);font-weight:700;font-size:clamp(14px,1.2vw,22px);letter-spacing:.06em;color:var(--spring);text-transform:uppercase}
+.row .what{font-size:clamp(14px,1.2vw,22px);font-weight:600}
+.row .why{display:block;color:var(--mist);font-size:clamp(12px,1vw,18px);line-height:1.45;margin-top:.15em;font-weight:400}
+
+.tip{margin-top:clamp(16px,2vw,34px);padding:clamp(12px,1.3vw,22px) clamp(14px,1.6vw,26px);background:var(--panel);border-radius:10px;
+  color:var(--cream);font-size:clamp(13px,1.1vw,20px);line-height:1.5;display:flex;gap:.8em;align-items:flex-start}
+.tip .ti{flex:0 0 auto;font-size:1.2em;transform:translateY(.05em)}
+.tip b{color:var(--gold)}
+
+/* full bleed hero days */
+.bleed{flex-direction:column;justify-content:flex-end}
+.bleed .photo{position:absolute;inset:0}
+.bleed .photo .scrim{background:linear-gradient(180deg,rgba(11,16,20,.18) 0%,rgba(11,16,20,.12) 38%,rgba(11,16,20,.86) 82%,rgba(11,16,20,.96) 100%)}
+.bleed .content{position:relative;z-index:4;padding:clamp(28px,4vw,72px);padding-bottom:clamp(34px,4.5vw,80px)}
+.bleed h2{font-size:clamp(46px,5.6vw,116px);margin-bottom:.15em}
+.bleed .lede{max-width:46em}
+.facts{display:flex;gap:clamp(12px,1.6vw,28px);flex-wrap:wrap;margin-top:clamp(14px,1.6vw,28px)}
+.fact{background:rgba(19,27,33,.78);border:1px solid var(--line);border-radius:12px;padding:clamp(12px,1.3vw,22px) clamp(14px,1.6vw,28px);max-width:30em;backdrop-filter:blur(4px)}
+.fact .f-k{font-size:clamp(11px,.85vw,15px);letter-spacing:.24em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:.5em}
+.fact .f-v{font-size:clamp(13px,1.15vw,21px);line-height:1.5}
+.fact.hot .f-k{color:var(--ember)}
+
+/* ---------- title ---------- */
+#s1 .content{align-items:flex-start;justify-content:flex-end}
+#s1 h1{font-size:clamp(58px,8.2vw,170px);max-width:9em}
+#s1 .countdown{display:flex;gap:clamp(10px,1.2vw,22px);margin-top:clamp(18px,2vw,36px)}
+.cd{background:rgba(19,27,33,.8);border:1px solid var(--line);border-radius:12px;padding:clamp(10px,1.2vw,20px) clamp(14px,1.8vw,30px);text-align:center;backdrop-filter:blur(4px)}
+.cd .n{font-family:var(--display);font-weight:800;font-size:clamp(30px,3.2vw,62px);color:var(--cream);line-height:1}
+.cd .l{font-size:clamp(10px,.8vw,14px);letter-spacing:.28em;text-transform:uppercase;color:var(--mist);margin-top:.4em}
+.hint{position:absolute;right:clamp(20px,2.5vw,44px);bottom:clamp(16px,2vw,36px);color:var(--mist);font-size:clamp(11px,.9vw,16px);letter-spacing:.18em;text-transform:uppercase;z-index:6;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+
+/* ---------- crew ---------- */
+.center{flex-direction:column;justify-content:center;padding:clamp(28px,4vw,80px)}
+.center .head{margin-bottom:clamp(22px,2.6vw,48px)}
+.center h2{font-size:clamp(42px,4.8vw,96px);margin-top:.15em}
+.crewgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,1.6vw,28px)}
+.crew{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,2.2vw,40px) clamp(16px,1.8vw,32px);text-align:center;transition:transform .25s ease}
+.crew:hover{transform:translateY(-6px)}
+.crew .em{font-size:clamp(38px,3.6vw,68px);line-height:1;margin-bottom:.35em;display:block}
+.crew .nm{font-family:var(--display);font-weight:800;font-size:clamp(24px,2.3vw,44px);text-transform:uppercase;letter-spacing:.04em}
+.crew .ag{color:var(--mist);font-size:clamp(12px,.95vw,17px);margin:.2em 0 .8em}
+.crew .role{display:inline-block;background:rgba(232,114,44,.14);color:var(--ember);border-radius:999px;padding:.45em 1em;font-size:clamp(11px,.9vw,16px);font-weight:600;letter-spacing:.04em;margin-bottom:.9em}
+.crew .pas{color:var(--mist);font-size:clamp(12px,1vw,18px);line-height:1.5}
+
+/* ---------- glance ---------- */
+.glancegrid{display:grid;grid-template-columns:repeat(9,1fr);gap:clamp(7px,.8vw,14px);margin-bottom:clamp(18px,2.2vw,40px)}
+.g{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:clamp(10px,1.1vw,20px) clamp(8px,.9vw,16px);min-width:0}
+.g .gd{font-size:clamp(10px,.8vw,14px);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.g .gp{font-family:var(--display);font-weight:700;font-size:clamp(15px,1.45vw,28px);text-transform:uppercase;line-height:1;margin:.35em 0 .3em}
+.g .gx{color:var(--mist);font-size:clamp(10px,.85vw,15px);line-height:1.35}
+.g.park-y{border-top:3px solid var(--ember)}
+.g.park-t{border-top:3px solid var(--spring)}
+.g.park-n{border-top:3px solid var(--gold)}
+.legend{display:flex;gap:2em;flex-wrap:wrap;color:var(--mist);font-size:clamp(12px,1vw,18px)}
+.legend b{color:var(--cream);font-weight:600}
+.lodging{display:flex;gap:clamp(10px,1.2vw,20px);margin-top:clamp(16px,1.8vw,30px);flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:.7em;background:var(--panel2);border-radius:999px;padding:.55em 1.2em;font-size:clamp(12px,1.05vw,19px)}
+.lg .nn{color:var(--gold);font-weight:700}
+
+/* ---------- two-photo days ---------- */
+.duo{flex:0 0 52%;display:flex;flex-direction:column;gap:6px}
+.duo .photo{flex:1.4}
+.duo .photo:last-child{flex:1}
+
+/* triple strip day */
+.trio{flex:0 0 46%;display:flex;flex-direction:column;gap:6px}
+.trio .photo{flex:1}
+
+/* ---------- checklist ---------- */
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.8vw,32px)}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,2.2vw,38px)}
+.col .when{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.1vw,40px);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.7em}
+.col.now .when{color:var(--ember)}
+.col.soon .when{color:var(--gold)}
+.col.gate .when{color:var(--spring)}
+.col li{list-style:none;display:flex;gap:.7em;align-items:flex-start;color:var(--cream);font-size:clamp(13px,1.1vw,20px);line-height:1.45;margin-bottom:.9em}
+.col li .ck{color:var(--spring);font-weight:700;flex:0 0 auto}
+.col li span small{display:block;color:var(--mist);font-size:.85em;margin-top:.15em}
+.col .note{color:var(--mist);font-size:clamp(11px,.9vw,16px);margin-top:.4em;font-style:italic}
+
+/* ---------- budget ---------- */
+.budgetwrap{display:flex;gap:clamp(20px,3vw,60px);align-items:stretch}
+.bigstat{flex:0 0 34%;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(22px,2.6vw,48px);display:flex;flex-direction:column;justify-content:center}
+.bigstat .bn{font-family:var(--display);font-weight:800;font-size:clamp(58px,6vw,124px);line-height:1;color:var(--gold)}
+.bigstat .bl{color:var(--mist);font-size:clamp(13px,1.05vw,19px);margin-top:.6em;line-height:1.5}
+.meter{height:12px;border-radius:999px;background:var(--panel2);margin-top:1.4em;overflow:hidden}
+.meter .fill{height:100%;width:84%;border-radius:999px;background:linear-gradient(90deg,var(--spring),var(--gold))}
+.bigstat .left{margin-top:.8em;font-size:clamp(13px,1.1vw,20px)}
+.bigstat .left b{color:var(--spring)}
+.items{flex:1;display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(10px,1.2vw,20px)}
+.it{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:clamp(12px,1.4vw,24px) clamp(14px,1.6vw,28px);display:flex;justify-content:space-between;align-items:center;gap:1em}
+.it .il{font-size:clamp(13px,1.1vw,20px);font-weight:600}
+.it .il small{display:block;color:var(--mist);font-weight:400;font-size:.82em;margin-top:.15em}
+.it .iv{font-family:var(--display);font-weight:800;font-size:clamp(20px,1.9vw,36px);color:var(--cream);white-space:nowrap}
+
+/* ---------- closing ---------- */
+#s15 .content{align-items:center;text-align:center;justify-content:center;flex:1;display:flex;flex-direction:column}
+#s15 h2{font-size:clamp(56px,7vw,150px)}
+.promises{display:flex;gap:clamp(12px,1.6vw,28px);margin-top:clamp(22px,2.6vw,46px);flex-wrap:wrap;justify-content:center}
+.promise{background:rgba(19,27,33,.8);border:1px solid var(--line);border-radius:14px;padding:clamp(14px,1.5vw,26px) clamp(18px,2vw,34px);backdrop-filter:blur(4px)}
+.promise .pe{font-size:clamp(24px,2.2vw,40px);display:block;margin-bottom:.3em}
+.promise .pt{font-size:clamp(13px,1.1vw,20px);line-height:1.4;color:var(--cream)}
+
+/* ---------- chrome ---------- */
+.progress{position:fixed;left:50%;transform:translateX(-50%);bottom:clamp(10px,1.2vw,20px);display:flex;gap:8px;z-index:50}
+.pd{width:9px;height:9px;border-radius:50%;background:rgba(244,239,226,.22);cursor:pointer;transition:all .25s}
+.pd.on{background:var(--ember);transform:scale(1.25)}
+.navhit{position:fixed;top:0;bottom:0;width:18%;z-index:40;cursor:pointer}
+.navhit.l{left:0}.navhit.r{right:0}
+.counter{position:fixed;left:clamp(14px,1.6vw,28px);bottom:clamp(10px,1.2vw,20px);color:var(--mist);font-size:clamp(10px,.85vw,14px);letter-spacing:.2em;z-index:50}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 · TITLE -->
+<section class="slide bleed" id="s1">
+  <div class="photo"><img data-file="Aerial image of Grand Prismatic Spring (view from the south).jpg" alt=""><div class="ph-label">Grand Prismatic Spring</div><div class="scrim"></div><div class="credit">Grand Prismatic Spring · NPS / Wikimedia Commons</div></div>
+  <div class="content">
+    <div class="eyebrow">Family Adventure <span class="dot">·</span> May 28 – June 5, 2027</div>
+    <h1>Yellowstone &amp;<br>Grand Teton</h1>
+    <div class="sub" style="margin-top:.6em">9 days &nbsp;·&nbsp; 2 national parks &nbsp;·&nbsp; wolves, geysers &amp; kayaks &nbsp;·&nbsp; Bozeman ➜ Jackson ➜ home</div>
+    <div class="countdown" id="countdown"></div>
+  </div>
+  <div class="hint">Press → to begin</div>
+</section>
+
+<!-- 2 · CREW -->
+<section class="slide center" id="s2">
+  <div class="head">
+    <div class="eyebrow">The Expedition Team</div>
+    <h2>Meet the Crew</h2>
+  </div>
+  <div class="crewgrid">
+    <div class="crew"><span class="em">📷</span><div class="nm">Dad</div><div class="ag">Age 46</div><div class="role">Lead Navigator &amp; Photographer</div><div class="pas">On a mission for the landscape shot of a lifetime</div></div>
+    <div class="crew"><span class="em">🐺</span><div class="nm">Mom</div><div class="ag">Age 45</div><div class="role">Chief Wolf Spotter</div><div class="pas">Wildlife above all — especially the wolves of Lamar Valley</div></div>
+    <div class="crew"><span class="em">🗺️</span><div class="nm">Reagan</div><div class="ag">Age 13</div><div class="role">Co-Navigator</div><div class="pas">Official map reader — she calls the turns on free-roam day</div></div>
+    <div class="crew"><span class="em">⭐</span><div class="nm">Kennedy</div><div class="ag">Age 10</div><div class="role">Junior Ranger Recruit</div><div class="pas">Collecting Junior Ranger badges in BOTH parks</div></div>
+  </div>
+</section>
+
+<!-- 3 · PLAN AT A GLANCE -->
+<section class="slide center" id="s3">
+  <div class="head">
+    <div class="eyebrow">The Plan at a Glance</div>
+    <h2>9 Days · 2 Parks · 3 Guided Adventures</h2>
+  </div>
+  <div class="glancegrid">
+    <div class="g park-n"><div class="gd">May 28</div><div class="gp">Bozeman</div><div class="gx">Land 3:30 PM, downtown night</div></div>
+    <div class="g park-y"><div class="gd">May 29</div><div class="gp">Yellowstone</div><div class="gx">North entrance, Mammoth check-in</div></div>
+    <div class="g park-y"><div class="gd">May 30</div><div class="gp">Wolf Tour</div><div class="gx">Pre-dawn, Lamar Valley safari</div></div>
+    <div class="g park-y"><div class="gd">May 31</div><div class="gp">Geysers</div><div class="gx">Old Faithful + Grand Canyon</div></div>
+    <div class="g park-y"><div class="gd">Jun 1</div><div class="gp">Free Day</div><div class="gx">Hayden Valley + lakes + badges</div></div>
+    <div class="g park-t"><div class="gd">Jun 2</div><div class="gp">Grand Teton</div><div class="gx">Signal Mountain check-in</div></div>
+    <div class="g park-t"><div class="gd">Jun 3</div><div class="gp">Kayaking</div><div class="gx">Jackson Lake + Jenny Lake</div></div>
+    <div class="g park-t"><div class="gd">Jun 4</div><div class="gp">Taggart Hike</div><div class="gx">Family loop + Jackson town</div></div>
+    <div class="g park-n"><div class="gd">Jun 5</div><div class="gp">Fly Home</div><div class="gx">Oxbow Bend, drive to BZN</div></div>
+  </div>
+  <div class="legend"><span><b style="color:var(--ember)">●</b> Yellowstone</span><span><b style="color:var(--spring)">●</b> Grand Teton</span><span><b style="color:var(--gold)">●</b> Travel days</span></div>
+  <div class="lodging">
+    <div class="lg">🏨 <span><span class="nn">1 night</span> Bozeman</span></div>
+    <div class="lg">🛏️ <span><span class="nn">2 nights</span> Mammoth Hot Springs Hotel</span></div>
+    <div class="lg">🏕️ <span><span class="nn">2 nights</span> Canyon Lodge &amp; Cabins</span></div>
+    <div class="lg">🛶 <span><span class="nn">3 nights</span> Signal Mountain Lodge — on the lake</span></div>
+  </div>
+</section>
+
+<!-- 4 · DAY 1 -->
+<section class="slide day" id="s4">
+  <div class="photo"><img data-file="Looking E - Hotel Baxter sign and Main Street - Bozeman Montana - 2013-07-09.jpg" alt=""><div class="ph-label">Downtown Bozeman</div><div class="scrim"></div><div class="credit">Main Street, Bozeman MT · Wikimedia Commons</div></div>
+  <div class="content">
+    <div class="stamp" style="top:clamp(16px,2vw,36px);right:clamp(16px,2vw,36px)"><div class="s-no">DAY 01</div><div class="s-park">Bozeman<br>Montana</div><div class="s-date">May 28 · 2027</div></div>
+    <div class="daytag"><span class="daynum">Day 1</span><span class="daydate">Friday, May 28</span></div>
+    <h2>Touch Down<br>in Bozeman</h2>
+    <div class="lede">Sleep in town tonight, hit Yellowstone fresh in the morning.</div>
+    <div class="plan">
+      <div class="row"><span class="t">3:30 PM</span><div><span class="what">Land at BZN</span><span class="why">Bags + rental car — about 45 minutes from wheels-down to road</span></div></div>
+      <div class="row"><span class="t">4:45 PM</span><div><span class="what">Grocery run for the cooler</span><span class="why">Stocking up in town saves real money inside the parks</span></div></div>
+      <div class="row"><span class="t">5:45 PM</span><div><span class="what">Check in downtown</span><span class="why">RSVP Hotel or AC Marriott — everything is walkable</span></div></div>
+      <div class="row"><span class="t">7:00 PM</span><div><span class="what">Dinner on Main Street</span><span class="why">Montana Ale Works — elk dishes, great burgers, kids menu</span></div></div>
+      <div class="row"><span class="t">9:00 PM</span><div><span class="what">Trip kickoff!</span><span class="why">Maps out on the bed — Reagan plots tomorrow's route</span></div></div>
+    </div>
+    <div class="tip"><span class="ti">💡</span><span><b>Why Bozeman tonight?</b> Landing at 3:30 is too late to make Gardiner comfortably — this way Day 2 starts with one of the prettiest drives in Montana.</span></div>
+  </div>
+</section>
+
+<!-- 5 · DAY 2 -->
+<section class="slide day flip" id="s5">
+  <div class="duo">
+    <div class="photo"><img data-file="Sunset at Roosevelt Arch (33798181385).jpg" alt=""><div class="ph-label">Roosevelt Arch</div><div class="credit">Roosevelt Arch, Gardiner MT · NPS / Wikimedia Commons</div></div>
+    <div class="photo"><img data-file="Travertine Terrace Mammoth Hot Springs Yellowstone National Park Wyoming USA.jpg" alt=""><div class="ph-label">Mammoth Terraces</div><div class="credit">Mammoth Hot Springs · Wikimedia Commons</div></div>
+  </div>
+  <div class="content">
+    <div class="stamp" style="top:clamp(16px,2vw,36px);right:clamp(16px,2vw,36px)"><div class="s-no">DAY 02</div><div class="s-park">Yellowstone<br>Nat'l Park</div><div class="s-date">May 29 · 2027</div></div>
+    <div class="daytag"><span class="daynum">Day 2</span><span class="daydate">Saturday, May 29</span></div>
+    <h2>Into<br>Yellowstone</h2>
+    <div class="lede">Bozeman ➜ Gardiner — 78 miles down Paradise Valley, the real "Yellowstone" TV backdrop.</div>
+    <div class="plan">
+      <div class="row"><span class="t">7:30 AM</span><div><span class="what">Drive Paradise Valley</span><span class="why">US-89 south along the Yellowstone River — pull over at the overlooks</span></div></div>
+      <div class="row"><span class="t">9:30 AM</span><div><span class="what">Roosevelt Arch + park pass</span><span class="why">First family photo under the 1903 arch · $80 pass covers both parks</span></div></div>
+      <div class="row"><span class="t">9:45 AM</span><div><span class="what">Check in at Mammoth</span><span class="why">2 nights just inside the North Entrance — elk wander the lawns</span></div></div>
+      <div class="row"><span class="t">10:00 AM</span><div><span class="what">Walk the travertine terraces</span><span class="why">Steaming stone staircases right out the door</span></div></div>
+      <div class="row"><span class="t">2:00 PM</span><div><span class="what">Lamar Valley scout drive</span><span class="why">First bison herds — recon for tomorrow's wolf mission</span></div></div>
+      <div class="row"><span class="t">7:30 PM</span><div><span class="what">Early dinner, early bed</span><span class="why">Tomorrow starts before the sun does</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · DAY 3 · WOLF SAFARI (full bleed) -->
+<section class="slide bleed" id="s6">
+  <div class="photo"><img data-file="Lamar Canyon Wolves - panoramio.jpg" alt=""><div class="ph-label">Lamar Canyon Wolf Pack</div><div class="scrim"></div><div class="credit">Lamar Canyon wolves, Yellowstone · Wikimedia Commons</div></div>
+  <div class="stamp" style="top:clamp(20px,2.6vw,48px);right:clamp(20px,2.6vw,48px)"><div class="s-no">DAY 03</div><div class="s-park">Lamar<br>Valley</div><div class="s-date">May 30 · 2027</div></div>
+  <div class="content">
+    <div class="daytag"><span class="daynum">Day 3</span><span class="daydate">Sunday, May 30 · Pre-dawn start</span></div>
+    <h2>Wolf &amp; Wildlife Safari</h2>
+    <div class="lede">A private guided morning in Lamar Valley — the Serengeti of North America. Professional spotting scopes, 6–8 hours, just the four of us and a wildlife biologist.</div>
+    <div class="facts">
+      <div class="fact"><div class="f-k">What we could see</div><div class="f-v">Wolf packs · grizzly bears · bison with brand-new calves · elk · pronghorn · bald eagles · coyotes</div></div>
+      <div class="fact hot"><div class="f-k">🐺 Mom's bucket list</div><div class="f-v">The Junction Butte and Lamar Canyon packs are the most reliably spotted in the park — and late May is prime wolf season</div></div>
+      <div class="fact"><div class="f-k">Book it</div><div class="f-v">In Our Nature or Lamar Valley Touring · reserve 2–3 months ahead for a private group of 4</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · DAY 4 · GEYSERS & CANYON -->
+<section class="slide day" id="s7">
+  <div class="trio">
+    <div class="photo"><img data-file="Spring Old Faithful eruption from Observation Point.jpg" alt=""><div class="ph-label">Old Faithful</div><div class="credit">Old Faithful from Observation Point · NPS / Wikimedia Commons</div></div>
+    <div class="photo"><img data-file="Grand Prismatic Overlook (36012512136).jpg" alt=""><div class="ph-label">Grand Prismatic</div><div class="credit">Grand Prismatic Overlook · NPS / Wikimedia Commons</div></div>
+    <div class="photo"><img data-file="Grand Canyon of Yellowstone and Lower falls, Wyoming, United States.jpg" alt=""><div class="ph-label">Lower Falls</div><div class="credit">Lower Falls from Artist Point · Wikimedia Commons</div></div>
+  </div>
+  <div class="content">
+    <div class="stamp" style="top:clamp(16px,2vw,36px);right:clamp(16px,2vw,36px)"><div class="s-no">DAY 04</div><div class="s-park">Old<br>Faithful</div><div class="s-date">May 31 · 2027</div></div>
+    <div class="daytag"><span class="daynum">Day 4</span><span class="daydate">Monday, May 31</span></div>
+    <h2>Geysers &amp;<br>the Grand Canyon</h2>
+    <div class="lede">Guided geyser tour in the morning, then we move camp to Canyon for two nights.</div>
+    <div class="plan">
+      <div class="row"><span class="t">8:00 AM</span><div><span class="what">Check out, head south</span><span class="why">Grand Loop through Norris to meet the guide</span></div></div>
+      <div class="row"><span class="t">AM</span><div><span class="what">Old Faithful erupts</span><span class="why">Boardwalk loop — Kennedy's Junior Ranger booklet starts here!</span></div></div>
+      <div class="row"><span class="t">12:30 PM</span><div><span class="what">Grand Prismatic overlook hike</span><span class="why">~1 mile up Fairy Falls trail — the photo of the whole trip</span></div></div>
+      <div class="row"><span class="t">2:30 PM</span><div><span class="what">Check in — Canyon Lodge</span><span class="why">2-bedroom suite · 2 nights · best food in the park</span></div></div>
+      <div class="row"><span class="t">4:30 PM</span><div><span class="what">Artist Point</span><span class="why">The 308-ft Lower Falls — almost twice the height of Niagara</span></div></div>
+    </div>
+    <div class="tip"><span class="ti">🍔</span><span><b>Dinner call:</b> Canyon Lodge bison burger. Don't skip it.</span></div>
+  </div>
+</section>
+
+<!-- 8 · DAY 5 · FREE DAY -->
+<section class="slide day flip" id="s8">
+  <div class="photo"><img data-file="Bison in Hayden Valley, Yellowstone NP (2).jpg" alt=""><div class="ph-label">Hayden Valley Bison</div><div class="scrim"></div><div class="credit">Bison in Hayden Valley · Wikimedia Commons</div></div>
+  <div class="content">
+    <div class="stamp" style="top:clamp(16px,2vw,36px);right:clamp(16px,2vw,36px)"><div class="s-no">DAY 05</div><div class="s-park">Hayden<br>Valley</div><div class="s-date">Jun 1 · 2027</div></div>
+    <div class="daytag"><span class="daynum">Day 5</span><span class="daydate">Tuesday, June 1 · Reagan navigates</span></div>
+    <h2>The Wild &amp;<br>Weird Free Day</h2>
+    <div class="lede">No guides, no schedule — Reagan runs the paper map, Kennedy runs the scavenger hunt.</div>
+    <div class="plan">
+      <div class="row"><span class="t">6:30 AM</span><div><span class="what">Hayden Valley at sunrise</span><span class="why">Bison herds in golden light — best wildlife hour of the day</span></div></div>
+      <div class="row"><span class="t">9:30 AM</span><div><span class="what">Mud Volcano &amp; Dragon's Mouth</span><span class="why">Bubbling, roaring, sulfur-burping mud pots. Totally weird. Kids LOVE it.</span></div></div>
+      <div class="row"><span class="t">11:00 AM</span><div><span class="what">Yellowstone Lake + West Thumb</span><span class="why">Hot springs bubbling straight into the lake shore</span></div></div>
+      <div class="row"><span class="t">2:30 PM</span><div><span class="what">Norris Geyser Basin</span><span class="why">Hottest thermal area on Earth — home of the world's tallest active geyser</span></div></div>
+      <div class="row"><span class="t">5:30 PM</span><div><span class="what">⭐ Badge ceremony</span><span class="why">Kennedy is sworn in as an official Junior Ranger at Canyon Visitor Center</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · DAY 6 · HELLO GRAND TETON -->
+<section class="slide day" id="s9">
+  <div class="duo">
+    <div class="photo"><img data-file="Tetons Jackson Lake.JPG" alt=""><div class="ph-label">Jackson Lake &amp; the Tetons</div><div class="credit">Teton Range over Jackson Lake · Wikimedia Commons</div></div>
+    <div class="photo"><img data-file="Barns grand tetons.jpg" alt=""><div class="ph-label">Mormon Row Barn</div><div class="credit">Moulton Barn, Mormon Row · Wikimedia Commons</div></div>
+  </div>
+  <div class="content">
+    <div class="stamp" style="top:clamp(16px,2vw,36px);right:clamp(16px,2vw,36px)"><div class="s-no">DAY 06</div><div class="s-park">Grand Teton<br>Nat'l Park</div><div class="s-date">Jun 2 · 2027</div></div>
+    <div class="daytag"><span class="daynum">Day 6</span><span class="daydate">Wednesday, June 2</span></div>
+    <h2>Hello,<br>Grand Teton!</h2>
+    <div class="lede">South through Yellowstone's back door and into a whole new skyline.</div>
+    <div class="plan">
+      <div class="row"><span class="t">8:00 AM</span><div><span class="what">Lewis River Canyon drive</span><span class="why">The stunning gorge most visitors never see</span></div></div>
+      <div class="row"><span class="t">11:30 AM</span><div><span class="what">Colter Bay — first Teton view</span><span class="why">The full range over Jackson Lake stops everyone cold</span></div></div>
+      <div class="row"><span class="t">12:30 PM</span><div><span class="what">Check in — Signal Mountain Lodge</span><span class="why">2-bedroom lakefront cabin · kitchen · gas fireplace · 3 nights</span></div></div>
+      <div class="row"><span class="t">2:30 PM</span><div><span class="what">Signal Mountain summit road</span><span class="why">360° over Jackson Hole — best panorama in either park</span></div></div>
+      <div class="row"><span class="t">5:30 PM</span><div><span class="what">Moulton Barn at golden hour</span><span class="why">The most-photographed barn in America — Dad's big moment</span></div></div>
+    </div>
+    <div class="tip"><span class="ti">⚡</span><span><b>Book first:</b> the lakefront cabin sells out 6+ months ahead. It's reservation #1 the day we commit.</span></div>
+  </div>
+</section>
+
+<!-- 10 · DAY 7 · KAYAKS (full bleed) -->
+<section class="slide bleed" id="s10">
+  <div class="photo"><img data-file="Willow Flats area and Teton Range in Grand Teton National Park.jpg" alt=""><div class="ph-label">Beneath the Teton Range</div><div class="scrim"></div><div class="credit">Teton Range, Grand Teton NP · Wikimedia Commons</div></div>
+  <div class="stamp" style="top:clamp(20px,2.6vw,48px);right:clamp(20px,2.6vw,48px)"><div class="s-no">DAY 07</div><div class="s-park">Jackson<br>Lake</div><div class="s-date">Jun 3 · 2027</div></div>
+  <div class="content">
+    <div class="daytag"><span class="daynum">Day 7</span><span class="daydate">Thursday, June 3 · On the water by 8:30</span></div>
+    <h2>Kayaks Beneath<br>the Tetons</h2>
+    <div class="lede">Guided paddle on glass-calm Jackson Lake with Mount Moran — all 12,605 feet of it — reflected around the boats. Afternoon boat shuttle across Jenny Lake to Hidden Falls and Inspiration Point.</div>
+    <div class="facts">
+      <div class="fact"><div class="f-k">The morning</div><div class="f-v">Private kayak tour, group of 4 · all gear included · eagles, osprey, and river otters along 15+ named islands</div></div>
+      <div class="fact"><div class="f-k">The afternoon</div><div class="f-v">Jenny Lake boat ➜ short climb to a 100-ft waterfall ➜ Inspiration Point's canyon views</div></div>
+      <div class="fact hot"><div class="f-k">Why 8:30 AM</div><div class="f-v">Morning water is flat calm — that's when the Tetons turn into a mirror</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · DAY 8 · TAGGART + JACKSON -->
+<section class="slide day flip" id="s11">
+  <div class="duo">
+    <div class="photo"><img data-file="Taggart Lake - panoramio.jpg" alt=""><div class="ph-label">Taggart Lake</div><div class="credit">Taggart Lake, Grand Teton NP · Wikimedia Commons</div></div>
+    <div class="photo"><img data-file="Deer antler arch, Jackson, WY.jpg" alt=""><div class="ph-label">Jackson Town Square</div><div class="credit">Antler arch, Jackson WY · Wikimedia Commons</div></div>
+  </div>
+  <div class="content">
+    <div class="stamp" style="top:clamp(16px,2vw,36px);right:clamp(16px,2vw,36px)"><div class="s-no">DAY 08</div><div class="s-park">Taggart<br>Lake</div><div class="s-date">Jun 4 · 2027</div></div>
+    <div class="daytag"><span class="daynum">Day 8</span><span class="daydate">Friday, June 4</span></div>
+    <h2>Lake Hike &amp;<br>Town Day</h2>
+    <div class="lede">A real Teton hike in the morning, cowboy town in the afternoon.</div>
+    <div class="plan">
+      <div class="row"><span class="t">7:00 AM</span><div><span class="what">Taggart Lake trailhead</span><span class="why">Lot fills by 9 — early birds win. Bear spray clipped on.</span></div></div>
+      <div class="row"><span class="t">7:30 AM</span><div><span class="what">The loop — 4 miles</span><span class="why">Easy-moderate, made for families · creek crossings and big views the whole way</span></div></div>
+      <div class="row"><span class="t">9:30 AM</span><div><span class="what">Lakeside boulders</span><span class="why">Glacier-clear water, full Teton reflection — toe-dipping optional (it's COLD)</span></div></div>
+      <div class="row"><span class="t">12:00 PM</span><div><span class="what">Lunch in Jackson</span><span class="why">Snake River Brewing — elk burgers on the patio</span></div></div>
+      <div class="row"><span class="t">2:00 PM</span><div><span class="what">Antler arches + souvenirs</span><span class="why">Town Square photos, western galleries, Elk Refuge overlook (free!)</span></div></div>
+    </div>
+    <div class="tip"><span class="ti">🥾</span><span>A family with kids 6, 8, and 10 called this hike <b>"the highlight of our entire trip."</b> Pack towels.</span></div>
+  </div>
+</section>
+
+<!-- 12 · DAY 9 · FLY HOME -->
+<section class="slide day" id="s12">
+  <div class="photo"><img data-file="Oxbow Bend overlook of Snake River.JPG" alt=""><div class="ph-label">Oxbow Bend</div><div class="scrim"></div><div class="credit">Oxbow Bend &amp; Mount Moran · Wikimedia Commons</div></div>
+  <div class="content">
+    <div class="stamp" style="top:clamp(16px,2vw,36px);right:clamp(16px,2vw,36px)"><div class="s-no">DAY 09</div><div class="s-park">Homeward<br>Bound</div><div class="s-date">Jun 5 · 2027</div></div>
+    <div class="daytag"><span class="daynum">Day 9</span><span class="daydate">Saturday, June 5</span></div>
+    <h2>One Last Look</h2>
+    <div class="lede">Signal Mountain ➜ Bozeman, about 4 hours of greatest hits in reverse.</div>
+    <div class="plan">
+      <div class="row"><span class="t">7:30 AM</span><div><span class="what">Check out of the cabin</span><span class="why">Last morning light on Mount Moran from the lakeshore</span></div></div>
+      <div class="row"><span class="t">8:30 AM</span><div><span class="what">Oxbow Bend stop</span><span class="why">Five minutes off route, always worth it — the classic reflection shot</span></div></div>
+      <div class="row"><span class="t">11:00 AM</span><div><span class="what">Last photo at the Arch</span><span class="why">Bookend the trip where it started · coffee stop in Livingston</span></div></div>
+      <div class="row"><span class="t">1:00 PM</span><div><span class="what">Return the car at BZN</span><span class="why">Easy little airport — 90 minutes is plenty</span></div></div>
+      <div class="row"><span class="t">Flight</span><div><span class="what">Wheels up for home</span><span class="why">Everyone picks their top-5 photos on the plane</span></div></div>
+    </div>
+    <div class="tip"><span class="ti">✈️</span><span><b>Southwest move:</b> check in exactly 24 hours before departure for the best boarding spots for all four of us.</span></div>
+  </div>
+</section>
+
+<!-- 13 · BOOK NOW -->
+<section class="slide center" id="s13">
+  <div class="head">
+    <div class="eyebrow">Make It Real</div>
+    <h2>What to Lock In — and When</h2>
+  </div>
+  <div class="cols">
+    <div class="col now">
+      <div class="when">Right Now</div>
+      <ul>
+        <li><span class="ck">✓</span><span>Signal Mountain Lodge<small>"Home Away from Home" 2-bed lakefront cabin — goes first</small></span></li>
+        <li><span class="ck">✓</span><span>Mammoth Hot Springs Hotel<small>Connecting cabins, 2 nights</small></span></li>
+        <li><span class="ck">✓</span><span>Canyon Lodge<small>2-bedroom suite, 2 nights</small></span></li>
+      </ul>
+      <div class="note">Park lodging opens ~13 months out and sells fast</div>
+    </div>
+    <div class="col soon">
+      <div class="when">2–3 Months Out</div>
+      <ul>
+        <li><span class="ck">✓</span><span>Wolf &amp; wildlife safari<small>In Our Nature / Lamar Valley Touring — private group of 4</small></span></li>
+        <li><span class="ck">✓</span><span>Guided kayak tour<small>Rendezvous River Sports — the authorized GTNP outfitter</small></span></li>
+        <li><span class="ck">✓</span><span>Geyser hot spots half-day<small>Big Sky GOAT Tours</small></span></li>
+      </ul>
+    </div>
+    <div class="col gate">
+      <div class="when">At the Gate</div>
+      <ul>
+        <li><span class="ck">✓</span><span>America the Beautiful pass<small>$80 — covers both parks all year</small></span></li>
+        <li><span class="ck">✓</span><span>Bear spray<small>Buy in Bozeman, can't fly with it</small></span></li>
+        <li><span class="ck">✓</span><span>Junior Ranger booklets<small>Free at any visitor center — Kennedy's mission begins</small></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 14 · BUDGET -->
+<section class="slide center" id="s14">
+  <div class="head">
+    <div class="eyebrow">Budget Snapshot</div>
+    <h2>The All-In Estimate</h2>
+    <div class="kicker">Flights and souvenirs not included</div>
+  </div>
+  <div class="budgetwrap">
+    <div class="bigstat">
+      <div class="bn">~$8,420</div>
+      <div class="bl">of the $10,000 trip budget</div>
+      <div class="meter"><div class="fill"></div></div>
+      <div class="left"><b>~$1,580 of headroom</b> for splurges &amp; surprises</div>
+    </div>
+    <div class="items">
+      <div class="it"><div class="il">Lodging — 9 nights<small>Bozeman + three park lodges</small></div><div class="iv">$3,700</div></div>
+      <div class="it"><div class="il">Guided tours ×3<small>Wolves · kayaks · geysers</small></div><div class="iv">$2,000</div></div>
+      <div class="it"><div class="il">Food &amp; dining<small>Restaurants + the mighty cooler</small></div><div class="iv">$1,100</div></div>
+      <div class="it"><div class="il">Rental SUV — 9 days<small>Full-size for four + gear</small></div><div class="iv">$900</div></div>
+      <div class="it"><div class="il">Gear &amp; misc<small>Bear spray, supplies</small></div><div class="iv">$300</div></div>
+      <div class="it"><div class="il">Gas + park passes<small>~800 miles · pass covers both parks</small></div><div class="iv">$420</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 · CLOSING -->
+<section class="slide bleed" id="s15">
+  <div class="photo"><img data-file="Sunset timelapse from Artist Point (48637819502).jpg" alt=""><div class="ph-label">Sunset at Artist Point</div><div class="scrim"></div><div class="credit">Artist Point at sunset · NPS / Wikimedia Commons</div></div>
+  <div class="content">
+    <div class="eyebrow">May 28 – June 5, 2027</div>
+    <h2>The Adventure Awaits</h2>
+    <div class="promises">
+      <div class="promise"><span class="pe">🐺</span><span class="pt">Mom sees wolves<br>in the wild</span></div>
+      <div class="promise"><span class="pe">🛶</span><span class="pt">We kayak beneath<br>the Tetons</span></div>
+      <div class="promise"><span class="pe">📷</span><span class="pt">Dad gets the shot<br>of a lifetime</span></div>
+      <div class="promise"><span class="pe">🗺️</span><span class="pt">Reagan navigates<br>us there</span></div>
+      <div class="promise"><span class="pe">⭐</span><span class="pt">Kennedy earns badges<br>in both parks</span></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="navhit l" id="hitL" title="Back"></div>
+<div class="navhit r" id="hitR" title="Next"></div>
+<div class="progress" id="dots"></div>
+<div class="counter" id="counter"></div>
+
+<script>
+// ---- load photos from Wikimedia Commons (Special:FilePath resolves the filename to the image) ----
+document.querySelectorAll('img[data-file]').forEach(function(img){
+  img.addEventListener('error',function(){ img.style.display='none'; });
+  img.addEventListener('load',function(){ var l=img.parentElement.querySelector('.ph-label'); if(l) l.style.display='none'; });
+  img.src='https://commons.wikimedia.org/wiki/Special:FilePath/'+encodeURIComponent(img.getAttribute('data-file'))+'?width=1600';
+});
+
+// ---- countdown to wheels-down ----
+(function(){
+  var box=document.getElementById('countdown');
+  function tick(){
+    var ms=new Date('2027-05-28T15:30:00-06:00')-new Date();
+    if(ms<0){ box.innerHTML='<div class="cd"><div class="n">GO!</div><div class="l">It\'s trip time</div></div>'; return; }
+    var d=Math.floor(ms/86400000), h=Math.floor(ms/3600000)%24, m=Math.floor(ms/60000)%60;
+    box.innerHTML=
+      '<div class="cd"><div class="n">'+d+'</div><div class="l">days</div></div>'+
+      '<div class="cd"><div class="n">'+h+'</div><div class="l">hours</div></div>'+
+      '<div class="cd"><div class="n">'+m+'</div><div class="l">minutes</div></div>'+
+      '<div class="cd"><div class="n">🏔️</div><div class="l">until takeoff</div></div>';
+  }
+  tick(); setInterval(tick,30000);
+})();
+
+// ---- deck navigation ----
+var slides=[].slice.call(document.querySelectorAll('.slide')), cur=0;
+var dots=document.getElementById('dots'), counter=document.getElementById('counter');
+slides.forEach(function(s,i){
+  var d=document.createElement('div'); d.className='pd'; d.onclick=function(){go(i)}; dots.appendChild(d);
+});
+function go(n,back){
+  if(n<0||n>=slides.length) return;
+  slides[cur].classList.remove('active');
+  cur=n;
+  var s=slides[cur];
+  s.classList.toggle('back',!!back);
+  s.classList.add('active');
+  requestAnimationFrame(function(){ s.classList.remove('back'); });
+  [].forEach.call(dots.children,function(d,i){ d.classList.toggle('on',i===cur); });
+  counter.textContent=(cur+1)+' / '+slides.length;
+}
+function next(){go(Math.min(cur+1,slides.length-1))}
+function prev(){go(Math.max(cur-1,0),true)}
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown') {e.preventDefault();next();}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp') {e.preventDefault();prev();}
+  else if(e.key==='Home') go(0);
+  else if(e.key==='End') go(slides.length-1);
+  else if(e.key==='f'||e.key==='F'){ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); }
+});
+document.getElementById('hitR').onclick=next;
+document.getElementById('hitL').onclick=prev;
+var tx=null;
+document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX});
+document.addEventListener('touchend',function(e){
+  if(tx===null)return; var dx=e.changedTouches[0].clientX-tx;
+  if(dx<-40)next(); else if(dx>40)prev(); tx=null;
+});
+go(0);
+</script>
+</body>
+</html>
