@@ -47,8 +47,8 @@ COL_MAP = {
     "bmi":         ["BMI"],
     "bodyfat":     ["Body Fat(%)", "Body Fat (%)", "Body Fat Percentage(%)"],
     "muscle_pct":  ["Skeletal Muscle(%)", "Skeletal Muscle (%)", "Skeletal Muscle Percentage(%)"],
-    "fat_free":    ["Fat-Free Mass(lb)", "Fat-Free Mass (lb)"],
-    "subcut_fat":  ["Subcutaneous Fat(%)", "Subcutaneous Fat (%)"],
+    "ffm":         ["Fat-Free Mass(lb)", "Fat-Free Mass (lb)"],
+    "subq":        ["Subcutaneous Fat(%)", "Subcutaneous Fat (%)"],
     "water":       ["Body Water(%)", "Body Water (%)", "Body Water Percentage(%)"],
     "muscle_mass": ["Muscle Mass(lb)", "Muscle Mass (lb)"],
     "bmr":         ["BMR(kcal)", "BMR (kcal)"],
@@ -103,8 +103,8 @@ for row in reader:
         "bmi":         g("bmi"),
         "bodyfat":     g("bodyfat"),
         "muscle_pct":  g("muscle_pct"),
-        "fat_free":    g("fat_free"),
-        "subcut_fat":  g("subcut_fat"),
+        "ffm":         g("ffm"),
+        "subq":        g("subq"),
         "water":       g("water"),
         "muscle_mass": g("muscle_mass"),
         "bmr":         g("bmr"),
@@ -113,18 +113,13 @@ for row in reader:
 # Sort oldest → newest
 rows.sort(key=lambda r: r["sort_key"])
 
-# Build JS array string
-def fmt(v):
-    return "null" if v is None else str(v)
-
-js_rows = []
+# Build output data (drop sort_key, keep named keys the dashboard expects)
+data = []
 for r in rows:
-    js_rows.append(
-        f'  [{json.dumps(r["date"])},{fmt(r["weight"])},{fmt(r["bmi"])},'
-        f'{fmt(r["bodyfat"])},{fmt(r["muscle_pct"])},{fmt(r["fat_free"])},'
-        f'{fmt(r["subcut_fat"])},{fmt(r["water"])},{fmt(r["muscle_mass"])},{fmt(r["bmr"])}]'
-    )
-new_builtin = "const BUILTIN = [\n" + ",\n".join(js_rows) + "\n];"
+    entry = {k: v for k, v in r.items() if k != "sort_key"}
+    data.append(entry)
+
+new_builtin = "const BUILTIN = " + json.dumps(data, separators=(",", ":")) + ";"
 
 # Read dashboard HTML
 html_path = "body-composition-dashboard_2.html"
