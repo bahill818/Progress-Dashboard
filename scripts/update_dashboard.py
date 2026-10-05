@@ -78,13 +78,16 @@ for row in reader:
     date_str = row.get(col_resolve["date"], "").strip()
     if not date_str:
         continue
-    try:
-        dt = datetime.strptime(date_str, "%m/%d/%y")
-    except ValueError:
+    parsed = None
+    for fmt in ("%m/%d/%y", "%Y-%m-%d", "%Y.%m.%d"):
         try:
-            dt = datetime.strptime(date_str, "%Y-%m-%d")
+            parsed = datetime.strptime(date_str, fmt)
+            break
         except ValueError:
             continue
+    if parsed is None:
+        continue
+    dt = parsed
 
     def g(key):
         val = row.get(col_resolve.get(key, ""), "").strip()
